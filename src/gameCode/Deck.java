@@ -34,7 +34,6 @@ public class Deck {
 				deck.add(c);
 			}
 			memo_deck.put(suit, temp_cards);
-			temp_cards.clear();
 		}
 	}
 	
@@ -81,6 +80,24 @@ public class Deck {
 			System.out.print(c.getSuitStringValue() + c.getCardIntValue() + " ");
 		}
 		System.out.println();
+	}
+	
+	/**
+	 * Returns the Deck data structure
+	 * 
+	 * @return ArrayList version of Deck
+	 */
+	public ArrayList<Card> getDeck() {
+		return this.deck;
+	}
+	
+	/**
+	 * Returns the memodeck data structure
+	 * 
+	 * @return memo Deck
+	 */
+	public Hashtable<String, ArrayList<Card>> getMemoDeck() {
+		return this.memo_deck;
 	}
 }
 
