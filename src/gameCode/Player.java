@@ -25,8 +25,8 @@ public class Player {
 	 * @param card - card dealt to player
 	 */
 	public void addCard(Card card) {
-		if (hand.size() < 2)
-			hand.add(card);
+		if (this.hand.size() < 2)
+			this.hand.add(card);
 		else 
 			System.out.println("Hand is full.");
 	}

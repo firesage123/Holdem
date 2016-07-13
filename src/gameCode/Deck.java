@@ -24,16 +24,16 @@ public class Deck {
 	 */
 	public Deck() {
 		this.current_card_count = TOTAL_CARD_COUNT;
-		deck = new ArrayList<Card>();
-		memo_deck = new Hashtable<String, ArrayList<Card>>();
+		this.deck = new ArrayList<Card>();
+		this.memo_deck = new Hashtable<String, ArrayList<Card>>();
 		for (String suit : SUITS) {
 			ArrayList<Card> temp_cards = new ArrayList<Card>();
 			for (String cv : CARD_VALUES) {
 				Card c = new Card(cv, suit);
 				temp_cards.add(c);
-				deck.add(c);
+				this.deck.add(c);
 			}
-			memo_deck.put(suit, temp_cards);
+			this.memo_deck.put(suit, temp_cards);
 		}
 	}
 	
@@ -63,11 +63,11 @@ public class Deck {
 	 */
 	public void shuffle() {
 		Random rand = new Random();
-		for (int i = deck.size()-1; i > 0; i--) {
+		for (int i = this.deck.size()-1; i > 0; i--) {
 			int j = rand.nextInt(i+1);
-			Card temp = deck.get(i);
-			deck.set(i, deck.get(j));
-			deck.set(j, temp);
+			Card temp = this.deck.get(i);
+			this.deck.set(i, this.deck.get(j));
+			this.deck.set(j, temp);
 		}
 	}
 	
@@ -76,7 +76,7 @@ public class Deck {
 	 */
 	public void printDeck() {
 		System.out.println("Current Deck of Cards:");
-		for (Card c : deck) {
+		for (Card c : this.deck) {
 			System.out.print(c.getSuitStringValue() + c.getCardIntValue() + " ");
 		}
 		System.out.println();
