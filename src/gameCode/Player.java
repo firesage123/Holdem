@@ -20,14 +20,16 @@ public class Player {
 	}
 	
 	/**
-	 * Adds a specific card to the Player's hand
-	 * 
-	 * @param card - card dealt to player
+	 * Returns the Player's hand
 	 */
-	public void addCard(Card card) {
-		if (this.hand.size() < 2)
-			this.hand.add(card);
-		else 
-			System.out.println("Hand is full.");
+	public ArrayList<Card> getHand() {
+		return this.hand;
+	}
+	
+	/**
+	 * Returns Player's amount of money
+	 */
+	public int getMoney() {
+		return this.money;
 	}
 }

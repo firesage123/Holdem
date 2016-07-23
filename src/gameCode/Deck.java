@@ -1,7 +1,6 @@
 package gameCode;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Random;
 
 public class Deck {	
@@ -17,7 +16,6 @@ public class Deck {
 	// Class fields
 	private int current_card_count;
 	private ArrayList<Card> deck; // Standard deck
-	private Hashtable<String, ArrayList<Card>> memo_deck; // Keeps track of which cards are still present
 	
 	/**
 	 * Constructs the card deck
@@ -25,15 +23,11 @@ public class Deck {
 	public Deck() {
 		this.current_card_count = TOTAL_CARD_COUNT;
 		this.deck = new ArrayList<Card>();
-		this.memo_deck = new Hashtable<String, ArrayList<Card>>();
 		for (String suit : SUITS) {
-			ArrayList<Card> temp_cards = new ArrayList<Card>();
 			for (String cv : CARD_VALUES) {
 				Card c = new Card(cv, suit);
-				temp_cards.add(c);
 				this.deck.add(c);
 			}
-			this.memo_deck.put(suit, temp_cards);
 		}
 	}
 	
@@ -53,7 +47,6 @@ public class Deck {
 	public Card removeTopCard() {
 		Card topCard = this.deck.remove(0);
 		this.current_card_count--;
-		this.memo_deck.get(topCard.getSuitStringValue()).remove(topCard);
 		return topCard;
 	}
 	
@@ -77,7 +70,7 @@ public class Deck {
 	public void printDeck() {
 		System.out.println("Current Deck of Cards:");
 		for (Card c : this.deck) {
-			System.out.print(c.getSuitStringValue() + c.getCardIntValue() + " ");
+			c.printCard();
 		}
 		System.out.println();
 	}
@@ -90,14 +83,4 @@ public class Deck {
 	public ArrayList<Card> getDeck() {
 		return this.deck;
 	}
-	
-	/**
-	 * Returns the memodeck data structure
-	 * 
-	 * @return memo Deck
-	 */
-	public Hashtable<String, ArrayList<Card>> getMemoDeck() {
-		return this.memo_deck;
-	}
 }
-

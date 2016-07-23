@@ -72,5 +72,12 @@ public class Card {
 			result = -1;
 		return result;
 	}
+	
+	/**
+	 * Prints a String representation of a Playing Card
+	 */
+	public void printCard() {
+		System.out.print(this.getCardIntValue() + "-" + this.getSuitStringValue() + " ");
+	}
 }
 
