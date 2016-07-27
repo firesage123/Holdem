@@ -103,4 +103,88 @@ public class PlayingTable {
 		for (Card c : this.communityCards)
 			c.printCard();
 	}
+	
+	/**
+	 * Determines which player has won the round,
+	 * based on each player's hand.
+	 * 
+	 * For a detailed explanation behind this method,
+	 * please consult the Holdem Github Wiki page:
+	 * https://github.com/firesage123/Holdem/wiki
+	 * 
+	 */
+	public void determineWinner() {
+		// Sort each player's hand with the community cards (combined seven cards)
+		int[] hand_evaluations = new int[this.numPlayers];
+		int counter = 0;
+		for (Player p : this.players) {
+			ArrayList<Card> complete_set = new ArrayList<Card>(p.getHand());
+			complete_set.addAll(this.communityCards);
+			
+			ArrayList<Card> sorted_set = sortHand(complete_set);
+			p.setSortedValueHand(sorted_set);
+			hand_evaluations[counter] = evaluateHand(p.getSortedValueHand());
+		}
+		int max = hand_evaluations[0];
+		int max_index = 0;
+		for (int i = 1; i < hand_evaluations.length; i++) {
+			if (hand_evaluations[i] > max) {
+				max = hand_evaluations[i];
+				max_index = i;
+			}
+		}
+		System.out.println("Winner is: Player " + (max_index+1) + "!");
+	}
+	
+	/**
+	 * Implements an optimized bucket sort algorithm
+	 * 
+	 * For a detailed explanation and reasonings
+	 * behind this method, please consult the 
+	 * Holdem Github Wiki page:
+	 * https://github.com/firesage123/Holdem/wiki
+	 * 
+	 * @param hand
+	 * @return result
+	 */
+	public ArrayList<Card> sortHand(ArrayList<Card> hand) {
+		// Create buckets
+		ArrayList<ArrayList<Card>> buckets = new ArrayList<ArrayList<Card>>();
+		for (int i = 1; i <= 7; i++)
+			buckets.add(new ArrayList<Card>());
+		
+		// Distributes cards into buckets (based on card value)
+		for (Card c : hand) 
+			buckets.get(c.getCardIntValue()/2 - 1).add(c);
+		
+		// Merge buckets into a single list
+		ArrayList<Card> merged_list = new ArrayList<Card>();
+		for (ArrayList<Card> bucket : buckets)
+			merged_list.addAll(bucket);
+		
+		// Uses insertion sort to sort merged buckets - see reasoning in wiki page
+		for (int i = 1; i < merged_list.size(); i++) {
+			Card current = merged_list.get(i);
+			int j = i - 1;
+			while (j >= 0 && merged_list.get(j).getCardIntValue() > current.getCardIntValue()) {
+				merged_list.set(j+1, merged_list.get(j));
+				j = j - 1;
+			}
+			merged_list.set(j+1, current);
+		}
+		
+		return merged_list; 
+	}
+	
+	/**
+	 * Evaluation function for a player's possible hands
+	 * 
+	 * @param set - set of seven cards of which a player
+	 * 				can get the highest five-card hand
+	 * @return evaluation - represents best hand possible
+	 */
+	public int evaluateHand(ArrayList<Card> set) {
+		/*To be implemented*/
+		return 0;
+	}
 }

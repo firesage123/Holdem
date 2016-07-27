@@ -33,7 +33,7 @@ public class Card {
 	
 	/** 
 	 * Following convention is used for face cards:
-	 * Ace - 1, Jack - 11, Queen - 12, King - 13
+	 * Jack - 11, Queen - 12, King - 13, Ace - 14
 	 *
 	 * @return numeric value of Card
 	 */
@@ -46,7 +46,7 @@ public class Card {
 		else if (this.value.equalsIgnoreCase("king"))
 			result = 13;
 		else if (this.value.equalsIgnoreCase("ace"))
-			result = 1;
+			result = 14;
 		else
 			result = Integer.parseInt(this.value);
 		return result;
