@@ -10,8 +10,8 @@ public class Deck {
 	private final static int TOTAL_CARD_COUNT = 52;
 	
 	// Suits and Card values
-	private final static String[] SUITS = {"spades", "hearts", "diamonds", "clubs"};
-	private final static String[] CARD_VALUES = {"ace","2","3","4","5","6","7","8","9","10","jack","queen","king"};
+	private final static String[] SUITS = {"S", "H", "D", "C"};
+	private final static String[] CARD_VALUES = {"2","3","4","5","6","7","8","9","10","J","Q","K","A"};
 	
 	// Class fields
 	private int current_card_count;

@@ -7,5 +7,7 @@ public class HoldemRunner {
 		for (int i = 1; i <= 3; i++)
 			playingTable.dealCommunityCards(i);
 		playingTable.printPlayingTable();
+		
+		playingTable.determineWinner();
 	}
 }

@@ -39,13 +39,13 @@ public class Card {
 	 */
 	public int getCardIntValue() {
 		int result;
-		if (this.value.equalsIgnoreCase("jack"))
+		if (this.value.equalsIgnoreCase("J"))
 			result = 11;
-		else if (this.value.equalsIgnoreCase("queen"))
+		else if (this.value.equalsIgnoreCase("Q"))
 			result = 12;
-		else if (this.value.equalsIgnoreCase("king"))
+		else if (this.value.equalsIgnoreCase("K"))
 			result = 13;
-		else if (this.value.equalsIgnoreCase("ace"))
+		else if (this.value.equalsIgnoreCase("A"))
 			result = 14;
 		else
 			result = Integer.parseInt(this.value);
@@ -60,13 +60,13 @@ public class Card {
 	 */
 	public int getSuitIntValue() {
 		int result;
-		if (this.suit.equalsIgnoreCase("spades"))
+		if (this.suit.equalsIgnoreCase("S"))
 			result = 1;
-		else if (this.suit.equalsIgnoreCase("hearts"))
+		else if (this.suit.equalsIgnoreCase("H"))
 			result = 2;
-		else if (this.suit.equalsIgnoreCase("diamonds"))
+		else if (this.suit.equalsIgnoreCase("D"))
 			result = 3;
-		else if (this.suit.equalsIgnoreCase("clubs"))
+		else if (this.suit.equalsIgnoreCase("C"))
 			result = 4;
 		else // Invalid suit input
 			result = -1;

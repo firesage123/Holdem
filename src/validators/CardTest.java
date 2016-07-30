@@ -11,11 +11,11 @@ public class CardTest {
 	@Test
 	public void getCardIntValueAndSuitTest() {
 		// Example cards
-		Card testCard1 = new Card("jack","hearts");
-		Card testCard2 = new Card("queen","spades");
-		Card testCard3 = new Card("king","clubs");
-		Card testCard4 = new Card("ace","diamonds");
-		Card testCard5 = new Card("4","hearts");
+		Card testCard1 = new Card("J","H");
+		Card testCard2 = new Card("Q","S");
+		Card testCard3 = new Card("K","C");
+		Card testCard4 = new Card("A","D");
+		Card testCard5 = new Card("4","H");
 		// getCardIntValue() tests
 		assertTrue(testCard1.getCardIntValue() == 11);
 		assertTrue(testCard2.getCardIntValue() == 12);

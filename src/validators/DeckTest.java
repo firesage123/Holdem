@@ -16,10 +16,10 @@ public class DeckTest {
 		assertTrue(deck.getDeck().size() == 52);
 		
 		boolean flag = false;
-		String[] suits = {"spades", "hearts", "diamonds", "clubs"};
+		String[] suits = {"S", "H", "D", "C"};
 		int counter = 0;
 		for (String s : suits) {
-			for (int i = 1; i <= 13; i++) {
+			for (int i = 2; i <= 14; i++) {
 				Card card = deck.getDeck().get(counter);
 				if (!card.getSuitStringValue().equals(s) || !(card.getCardIntValue() == i))
 					flag = true;
