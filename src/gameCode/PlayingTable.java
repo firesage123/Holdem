@@ -2,6 +2,7 @@ package gameCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner; 
 
 public class PlayingTable {
 	// Creates and simulates the Texas Hold'em playing table.
@@ -12,6 +13,11 @@ public class PlayingTable {
 	private ArrayList<Player> players;
 	private ArrayList<Card> communityCards;
 	private ArrayList<Card> burnPile;
+	private int[] blinds;
+	private int pot;
+	private int maxPlayerId;
+	private int smallBlindAmount;
+	private int bigBlindAmount;
 	
 	// Scores
 	private final int STRAIGHT_FLUSH = 800;
@@ -33,6 +39,7 @@ public class PlayingTable {
 	 */
 	public PlayingTable(int numberOfPlayers, int startingMoney) {
 		this.numPlayers = numberOfPlayers;
+		this.maxPlayerId = numberOfPlayers-1;
 		this.communityCards = new ArrayList<Card>();
 		this.burnPile = new ArrayList<Card>();
 		
@@ -42,8 +49,13 @@ public class PlayingTable {
 		
 		for (int i = 0; i < numberOfPlayers; i++) {
 			Player temp = new Player(startingMoney);
+			temp.setPlayerId(i);
 			this.players.add(temp);
 		}
+		this.smallBlindAmount = startingMoney / 10;
+		this.bigBlindAmount = this.smallBlindAmount * 2;
+		this.pot = 0;
+		this.blinds = new int[2];
 	}
 	
 	/**
@@ -72,11 +84,11 @@ public class PlayingTable {
 	 * Deals community cards according to Texas Hold'em
 	 * rules (flop, turn, river)
 	 * 
-	 * @param roundNumber
+	 * @param phaseNumber
 	 */
-	public void dealCommunityCards(int roundNumber) {
+	public void dealCommunityCards(int phaseNumber) {
 		dealTopCard(this.burnPile); // burn
-		if (roundNumber == 1) { // flop
+		if (phaseNumber == 1) { // flop
 			for (int i = 1; i <= 3; i++)
 				dealTopCard(this.communityCards);
 		}
@@ -357,5 +369,182 @@ public class PlayingTable {
 				max_score = c.getCardIntValue();
 		}
 		return max_score;
+	}
+	
+	/**
+	 * Adds a specific amount to the pot
+	 * 
+	 * @param value
+	 */
+	public void addToPot(int value) {
+		this.pot += value;
+	}
+	
+	/**
+	 * Resets the pot to 0
+	 */
+	public void clearPot() {
+		this.pot = 0;
+	}
+	
+	/**
+	 * Gives winner the pot money
+	 * 
+	 * @param reward
+	 * @param winningPlayer
+	 */
+	public void rewardPot(int amount, Player winningPlayer) {
+		winningPlayer.addMoney(amount);
+	}
+	
+	/**
+	 * 
+	 */
+	public void playGame() {
+		boolean prevBlindSet = false;
+		boolean exit = false;
+		while (!exit) {
+			// Removes players who are out
+			if (this.numPlayers != 0)
+				for (Player p : this.players) 
+					if (p.getMoney() == 0) {
+						this.players.remove(p);
+						this.numPlayers--;
+					}
+			this.maxPlayerId = this.players.get(this.players.size()-1).getPlayerId();
+			
+			// Proclaim winner if one person is left
+			if (this.numPlayers == 1) {
+				System.out.println("Player " + (this.players.get(0).getPlayerId()+1) + " has won!");
+				break;
+			}
+			
+			// Clears players for new round
+			for (Player p : this.players)
+				p.clearForRound();
+			
+			// Set blinds
+			if (!prevBlindSet) {
+				this.blinds[0] = 0;
+				this.blinds[1] = 1;
+				this.players.get(0).setSmallBlind(true);
+				this.players.get(1).setBigBlind(true);
+				prevBlindSet = true;
+			}
+			else {
+				// Last player was small blind
+				if (this.blinds[0] >= this.maxPlayerId) {
+					this.players.get(0).setSmallBlind(true);
+					this.players.get(1).setBigBlind(true);
+					this.blinds[0] = this.players.get(0).getPlayerId();
+					this.blinds[1] = this.players.get(1).getPlayerId();
+				}
+				// Last player was big blind
+				else if (this.blinds[1] >= this.maxPlayerId) {
+					this.players.get(this.players.size()-1).setSmallBlind(true);
+					this.players.get(0).setBigBlind(true);
+					this.blinds[0] = this.players.get(this.players.size()-1).getPlayerId();
+					this.blinds[1] = this.players.get(0).getPlayerId();
+				}
+				// All other cases
+				else {
+					boolean set = false;
+							
+					for (int i = 0; i <= this.players.size(); i++) {
+						if (this.players.get(i).getPlayerId() == this.blinds[1]) {
+							this.players.get(i).setSmallBlind(true);
+							this.players.get(i+1).setBigBlind(true);
+							this.blinds[0] = this.players.get(i).getPlayerId();
+							this.blinds[1] = this.players.get(i+1).getPlayerId();
+							set = true;
+						}
+					}
+					if (!set) {
+						for (int i = 0; i < this.players.size(); i++) {
+							if (this.players.get(i).getPlayerId() > this.blinds[1]) {
+								this.players.get(i).setSmallBlind(true);
+								this.blinds[0] = this.players.get(i).getPlayerId();
+							}
+							if (i+1 == this.players.size()) {
+								this.players.get(i+1).setBigBlind(true);
+								this.blinds[1] = this.players.get(i+1).getPlayerId();
+							}
+							else {
+								this.players.get(0).setBigBlind(true);
+								this.blinds[1] = this.players.get(0).getPlayerId();
+							}
+						}
+					}
+				}
+			}
+			
+			this.dealHoleCards();
+			this.printPlayingTable();
+			
+			for (int roundNum = 1; roundNum <= 3; roundNum++) {
+				this.playPhase(roundNum);
+			}
+			
+			
+			
+			int numberOfTries = 0;
+			while (numberOfTries <= 3) {
+				int quitValue = this.askToQuit();
+				if (quitValue == 1) {
+					exit = true;
+					break;
+				}
+				else if (quitValue == 2)
+					break;
+				else {
+					System.out.println("Please enter a valid input!");
+					numberOfTries++;
+				}
+			}
+			if (numberOfTries == 4) {
+				System.out.println("Due to multiple invalid attempts, game will now terminate.");
+				exit = true;
+			}
+		}
+		System.out.println("*** Game has terminated. ***");
+	}
+	
+	/**
+	 * Plays the specific phase number
+	 * 
+	 * @param phaseNum
+	 */
+	public void playPhase(int phaseNum) {
+		for (Player p : this.players){
+			if (p.isSmallBlind())
+				p.bet(this, this.smallBlindAmount);
+			if (p.isBigBlind())
+				p.bet(this, this.bigBlindAmount);
+		}
+		for (Player p : this.players)
+			p.turn();
+		this.dealCommunityCards(phaseNum);
+	}
+	
+	/**
+	 * Asks user if he/she wants to quit the game
+	 * Returns 1 if answered "yes",
+	 *         2 if answered "no",
+	 *         3 if invalid input. 
+	 * 
+	 * @return userInput
+	 */
+	public int askToQuit() {
+		int userInput = 0;
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Quit Playing? (Y/N): ");
+		String decision = scan.next();
+		if (decision.equalsIgnoreCase("y") || decision.equalsIgnoreCase("Yes"))
+			userInput = 1;
+		else if (decision.equalsIgnoreCase("n") || decision.equalsIgnoreCase("No"))
+			userInput = 2;
+		else
+			userInput = 3;
+		return userInput;
 	}
 }

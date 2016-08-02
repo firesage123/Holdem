@@ -9,6 +9,10 @@ public class Player {
 	private ArrayList<Card> hand;
 	private ArrayList<Card> sorted_hand;
 	private int money;
+	private boolean smallBlind;
+	private boolean bigBlind;
+	private boolean fold;
+	private int playerId;
 	
 	/**
 	 * Constructs a Player Object
@@ -18,6 +22,9 @@ public class Player {
 	public Player(int startingMoney) {
 		this.money = startingMoney;
 		this.hand = new ArrayList<Card>();
+		this.smallBlind = false;
+		this.bigBlind = false;
+		this.fold = false;
 	}
 	
 	/**
@@ -67,8 +74,118 @@ public class Player {
 	
 	/**
 	 * Returns Player's amount of money
+	 * 
+	 * @return money
 	 */
 	public int getMoney() {
 		return this.money;
+	}
+	
+	/**
+	 * Adds specified amount to Player's bank
+	 * 
+	 * @param amount
+	 */
+	public void addMoney(int amount) {
+		this.money += amount;
+	}
+	
+	/**
+	 * Sets the player's small blind status
+	 * 
+	 * @param smallBlind
+	 */
+	public void setSmallBlind(boolean smallBlind) {
+		this.smallBlind = smallBlind;
+	}
+	
+	/**
+	 * Sets the player's big blind status
+	 * 
+	 * @param bigBlind
+	 */
+	public void setBigBlind(boolean bigBlind) {
+		this.bigBlind = bigBlind;
+	}
+	
+	/**
+	 * Return small blind status
+	 * 
+	 * @return smallBlind 
+	 */
+	public boolean isSmallBlind() {
+		return this.smallBlind;
+	}
+	
+	/**
+	 * Returns big blind status
+	 * 
+	 * @return bigBlind
+	 */
+	public boolean isBigBlind() {
+		return this.bigBlind;
+	}
+	
+	/**
+	 * Player bets money, adds to pot
+	 * Goes all-in if not enough money
+	 * 
+	 * @param amount
+	 */
+	public void bet(PlayingTable table, int amount) {
+		int actualAmount;
+		if (this.money > amount) {
+			this.money -= amount;
+			actualAmount = amount;
+		}
+		else {
+			actualAmount = this.money;
+			this.money = 0;
+		}
+		table.addToPot(actualAmount);
+	}
+	
+	/**
+	 * Player folds
+	 */
+	public void fold() {
+		this.fold = true;
+	}
+	
+	/**
+	 * Clears the players hand and sets blind status to false
+	 */
+	public void clearForRound() {
+		if (this.fold == true)
+			this.fold = false;
+		this.hand = new ArrayList<Card>();
+		this.sorted_hand = new ArrayList<Card>();
+		this.setBigBlind(false);
+		this.setSmallBlind(false);
+	}
+	
+	/**
+	 * Returns a Player's id
+	 * 
+	 * @return playerId
+	 */
+	public int getPlayerId() {
+		return this.playerId;
+	}
+	
+	/**
+	 * Sets a Player's id
+	 * 
+	 * @param playerId
+	 */
+	public void setPlayerId(int id) {
+		this.playerId = id;
+	}
+	
+	/**
+	 * 
+	 */
+	public void turn() {
+		
 	}
 }
