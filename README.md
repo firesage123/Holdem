@@ -1,5 +1,5 @@
 # Holdem
-**Current Version: 1.0 - Updated August 1, 2016**
+**Current Version: 1.0 - Updated August 2, 2016**
 
 **Start Date: June 25, 2016**
 
