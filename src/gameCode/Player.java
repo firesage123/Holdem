@@ -12,7 +12,9 @@ public class Player {
 	private boolean smallBlind;
 	private boolean bigBlind;
 	private boolean fold;
+	private boolean in;
 	private int playerId;
+	private int totalBet;
 	
 	/**
 	 * Constructs a Player Object
@@ -25,6 +27,8 @@ public class Player {
 		this.smallBlind = false;
 		this.bigBlind = false;
 		this.fold = false;
+		this.in = true;
+		this.totalBet = 0;
 	}
 	
 	/**
@@ -130,19 +134,35 @@ public class Player {
 	 * Player bets money, adds to pot
 	 * Goes all-in if not enough money
 	 * 
-	 * @param amount
+	 * @param table
+	 * @param amount - amount player wants to bet
+	 * @param highestBet - the highest bet on the table
+	 * @return newhigh
 	 */
-	public void bet(PlayingTable table, int amount) {
+	public int bet(PlayingTable table, int amount, int highestBet) {
 		int actualAmount;
-		if (this.money > amount) {
+		int newhigh = highestBet;
+		// Cannot call current bet and/or goes all-in
+		if (this.money <= highestBet || amount == this.money) {
+			actualAmount = this.money;
+			this.totalBet += this.money;
+			this.money = 0;
+			System.out.println("Player " + this.playerId + " is all-in!");
+		}
+		// Otherwise
+		else {
 			this.money -= amount;
 			actualAmount = amount;
-		}
-		else {
-			actualAmount = this.money;
-			this.money = 0;
+			this.totalBet += amount;
+			if (amount == highestBet || this.totalBet == highestBet)
+				System.out.println("Player " + this.playerId + " calls!");
+			else {
+				System.out.println("Player " + this.playerId + " raises by " + (this.totalBet - highestBet) + "!");
+				newhigh = amount;
+			}
 		}
 		table.addToPot(actualAmount);
+		return newhigh;
 	}
 	
 	/**
@@ -150,6 +170,15 @@ public class Player {
 	 */
 	public void fold() {
 		this.fold = true;
+	}
+	
+	/**
+	 * Returns a player's fold status
+	 * 
+	 * @return fold
+	 */
+	public boolean isFolded() {
+		return this.fold;
 	}
 	
 	/**
@@ -162,10 +191,43 @@ public class Player {
 		this.sorted_hand = new ArrayList<Card>();
 		this.setBigBlind(false);
 		this.setSmallBlind(false);
+		this.totalBet = 0;
 	}
 	
 	/**
-	 * Returns a Player's id
+	 * Simulates a player's turn
+	 * 
+	 * @param table
+	 * @param highestBet - the highest bet amount on table
+	 * @return newhigh
+	 */
+	public int turn(PlayingTable table, int highestBet) {
+		if (highestBet > this.totalBet)
+			return this.bet(table, highestBet-totalBet, highestBet);
+		else
+			return highestBet;
+	}
+	
+	/**
+	 * Returns whether the player is still in the game
+	 * 
+	 * @return in
+	 */
+	public boolean getInStatus() {
+		return this.in;
+	}
+	
+	/**
+	 * Sets the player's in status
+	 * 
+	 * @param inStatus
+	 */
+	public void setInStatus(boolean inStatus) {
+		this.in = inStatus;
+	}
+	
+	/**
+	 * Returns the player's id
 	 * 
 	 * @return playerId
 	 */
@@ -174,18 +236,29 @@ public class Player {
 	}
 	
 	/**
-	 * Sets a Player's id
+	 * Sets the player's id
 	 * 
 	 * @param playerId
 	 */
-	public void setPlayerId(int id) {
-		this.playerId = id;
+	public void setPlayerId(int playerId) {
+		this.playerId = playerId;
 	}
 	
 	/**
+	 * Returns the player's totalBet
 	 * 
+	 * @return totalBet
 	 */
-	public void turn() {
-		
+	public int getTotalBet() {
+		return this.totalBet;
+	}
+	
+	/**
+	 * Sets the player's totalbet
+	 * 
+	 * @param total
+	 */
+	public void setTotalBet(int total) {
+		this.totalBet = total;
 	}
 }
