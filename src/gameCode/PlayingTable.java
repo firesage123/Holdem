@@ -105,20 +105,18 @@ public class PlayingTable {
 	 * Prints a String representation of PlayingTable
 	 */
 	public void printPlayingTable() {
-		System.out.println("Number of Players: " + this.numPlayers);
-		int counter = 1;
+		System.out.println("Number of Players: " + this.getInCount());
 		for (Player p : this.players) {
 			if (!p.getInStatus())
-				System.out.println("Player " + counter + " is out!");
+				System.out.println("Player " + p.getPlayerId() + " is out!");
 			else {
-				System.out.println("Player info for Player " + counter + ": ");
+				System.out.println("Player info for Player " + p.getPlayerId() + ": ");
 				System.out.println("Money: " + p.getMoney());
 				System.out.print("Hand: ");
 				for (Card c : p.getHand())
 					c.printCard();
 				System.out.println();
 				System.out.println();
-				counter++;
 			}
 		}
 		System.out.println("Burn Pile: ");
@@ -149,7 +147,7 @@ public class PlayingTable {
 		for (Player p : this.players) {
 			if (p.getInStatus()) {
 				hand_evaluations[counter] = evaluateHand(p.getHand(), this.communityCards);
-				System.out.println("Player " + (counter + 1) + ": " + hand_evaluations[counter]);
+				System.out.println("Player " + p.getPlayerId() + ": " + hand_evaluations[counter]);
 				counter++;
 			}
 		}
@@ -410,6 +408,9 @@ public class PlayingTable {
 	public void playGame() {
 		boolean exit = false;
 		while (!exit) {
+			// Clears playing table
+			this.clearTable();
+			
 			// Determines which players are out of money
 			for (Player p : this.players) 
 				if (p.getMoney() == 0)
@@ -437,14 +438,25 @@ public class PlayingTable {
 			
 			// Sets blinds
 			this.setBlinds();
-			
+			System.out.println("SMALL BLIND: " + blinds[0]);
+			System.out.println("BIG BLIND: " + blinds[1]);
 			// Deals cards
 			this.dealHoleCards();
 			this.printPlayingTable();
 			
+			// Determines who goes first this round
+			int starting = this.blinds[1]+1;
+			for (int i = 0; i < this.numPlayers; i++) {
+				Player p = this.players.get((i+starting) % this.numPlayers);
+				if (p.getInStatus() && !p.isFolded()) {
+					starting = (i+starting) % this.numPlayers;
+					break;
+				}
+			}
+			
 			// Play round
 			for (int roundNum = 1; roundNum <= 4; roundNum++)
-				this.playPhase(roundNum);
+				this.playPhase(roundNum, starting);
 			
 			// Determines winner
 			ArrayList<Integer> winners = this.determineWinner();
@@ -452,7 +464,6 @@ public class PlayingTable {
 				this.rewardPot(this.pot/winners.size(), this.players.get(win));
 				System.out.println("Player " + this.players.get(win).getPlayerId() + " has won!");
 			}
-			this.clearPot();
 			System.out.println("");
 			
 			// Prompt exit
@@ -482,49 +493,26 @@ public class PlayingTable {
 	 * Plays the specific phase number
 	 * 
 	 * @param phaseNum
+	 * @param starting - first player to go this game
 	 */
-	public void playPhase(int phaseNum) {
+	public void playPhase(int phaseNum, int starting) {
 		for (Player p : players)
 			p.setTotalBet(0);
 		int highestBet = 0;
 		if (phaseNum == 1) {
-			for (Player p : this.players){
-				if (p.isSmallBlind())
-					p.bet(this, this.smallBlindAmount, this.smallBlindAmount);
-				if (p.isBigBlind())
-					p.bet(this, this.bigBlindAmount, this.bigBlindAmount);
-			}
+			this.players.get(this.blinds[0]).bet(this, this.smallBlindAmount, this.smallBlindAmount);
+			this.players.get(this.blinds[1]).bet(this, this.bigBlindAmount, this.bigBlindAmount);
 			highestBet = this.bigBlindAmount;
 		}
 		else
 			highestBet = 0;
+		
 		int differingBets = this.getInCount();
 		
-		boolean startingFound = false;
-		int starting = 0;
-		for (int i = this.blinds[1]+1; i < this.numPlayers; i++) {
-			if (this.players.get(i).getInStatus() && !this.players.get(i).isFolded()) {
-				starting = i;
-				startingFound = true;
-				break;
-			}
-		}
-		if (!startingFound) {
-			for (int i = 0; i < this.blinds[1]; i++) {
-				if (this.players.get(i).getInStatus() && !this.players.get(i).isFolded()) {
-					starting = i;
-					startingFound = true;
-					break;
-				}
-			}
-		}
-		
-		int counter = 0;
 		while (differingBets != 0) {
-			if (counter == 2)
-				break;
-			for (int i = starting; i < this.numPlayers; i++) {
-				Player p = this.players.get(i);
+			
+			for (int i = 0; i < this.numPlayers; i++) {
+				Player p = this.players.get((i+starting) % this.numPlayers);
 				if (p.getInStatus() && !p.isFolded()) {
 					int betAmount = p.turn(this, highestBet);
 					if (p.isFolded())
@@ -537,21 +525,6 @@ public class PlayingTable {
 					}
 				}
 			}
-			for (int i = 0; i < starting-1; i++) {
-				Player p = this.players.get(i);
-				if (p.getInStatus() && !p.isFolded()) {
-					int betAmount = p.turn(this, highestBet);
-					if (p.isFolded())
-						differingBets--;
-					else {
-						if (betAmount == highestBet)
-							differingBets--;
-						else
-							highestBet = betAmount;
-					}
-				}
-			}
-			counter++;
 		}
 		System.out.println("Betting now over.");
 		if (phaseNum != 4) {
@@ -596,23 +569,25 @@ public class PlayingTable {
 			this.players.get(1).setBigBlind(true);
 		}
 		else {
-			for (int i = this.blinds[0]; i < this.numPlayers; i++) {
-				if (this.players.get(i).getInStatus() && !this.players.get(i).isSmallBlind()) {
-					this.players.get(i).setSmallBlind(true);
+			// find next small blind
+			int smallB = this.blinds[0]+1;
+			for (int i = 0; i < this.numPlayers; i++) {
+				Player p = this.players.get((i+smallB) % this.numPlayers);
+				if (p.getInStatus()) {
+					p.setSmallBlind(true);
+					this.blinds[0] = (i+smallB) % this.numPlayers;
 					break;
 				}
-				// If this code is reached, then the last eligible player in the list was the previous small blind
-				if (i == this.numPlayers-1)
-					i = 0;
 			}
-			for (int i = this.blinds[1]; i < this.numPlayers; i++) {
-				if (this.players.get(i).getInStatus() && !this.players.get(i).isSmallBlind() && !this.players.get(i).isBigBlind()) {
-					this.players.get(i).setBigBlind(true);
+			// find next big blind
+			int bigB = this.blinds[1]+1;
+			for (int i = 0; i < this.numPlayers; i++) {
+				Player p = this.players.get((i+bigB) % this.numPlayers);
+				if (p.getInStatus() && !p.isSmallBlind()) {
+					p.setBigBlind(true);
+					this.blinds[1] = (i+bigB) % this.numPlayers;
 					break;
 				}
-				// If this code is reached, then the last eligible player in the list was the previous big blind
-				if (i == this.numPlayers-1)
-					i = 0;
 			}
 		}
 	}
@@ -628,5 +603,16 @@ public class PlayingTable {
 			if (p.getInStatus())
 				inCount++;
 		return inCount;
+	}
+	
+	/**
+	 * Clears the current PlayingTable
+	 */
+	public void clearTable() {
+		this.deck = new Deck();
+		this.deck.shuffle();
+		this.clearPot();
+		this.communityCards = new ArrayList<Card>();
+		this.burnPile = new ArrayList<Card>();
 	}
 }

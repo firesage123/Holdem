@@ -202,6 +202,7 @@ public class Player {
 	 * @return newhigh
 	 */
 	public int turn(PlayingTable table, int highestBet) {
+		System.out.print("Player " + this.playerId + "'s turn: ");
 		if (highestBet > this.totalBet)
 			return this.bet(table, highestBet-totalBet, highestBet);
 		else
