@@ -553,6 +553,7 @@ public class PlayingTable {
 			userInput = 2;
 		else
 			userInput = 3;
+		scan.close();
 		return userInput;
 	}
 	
